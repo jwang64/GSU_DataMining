@@ -1,0 +1,122 @@
+---
+title: "R_Assignment_6_7"
+author: "James Wang"
+date: "10/21/2021"
+output: html_document
+---
+
+Chapter 6
+
+Exercise 55
+```{r}
+library(readxl)
+delivery <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/jaggia_ba_1e_ch06_Delivery.xlsx")
+```
+
+A
+```{r}
+delivery_model <- lm(Charge~ Distance + Weight + Boxes ,data=delivery)
+
+summary(delivery_model)
+```
+The joint probability test has a p-value of approximately 0 which is less than the significance level of .05 which allows me to reject the null hypothesis that the coefficients of the model are 0 at. The individual p-values for distance, weight, and boxes are also at approximately 0 which is less than the .05 significance level, so I can reject the null hypothesis that there is 0 correlation between the predictors and the response. 
+
+B.
+```{r}
+round(cor(delivery),2)
+```
+There is no evidence of multicollinearity because each of the individual independent variables are significant. There is also no correlation greater than .8 between the different predictor variables.
+
+C.
+```{r}
+delivery_residuals <- resid(delivery_model)
+
+plot(delivery_residuals ~ delivery$Charge)
+```
+There doesn't seem to be evidence of changing variability. The residuals look to be randomly distributed.
+
+Exercise 57
+```{r}
+
+rental <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/jaggia_ba_1e_ch06_AnnArbor_Rental.xlsx")
+```
+
+A
+```{r}
+rental_model <- lm(Rent~ Bed + Bath + Sqft ,data=rental)
+
+summary(rental_model)
+```
+B
+Square footage is likely the variable that is causing the variability. Square footage doesn't correspond with the same amount of increase per additional square foot. The amount that square footage corresponds with rent can change depending on how much square foot there already is.
+
+C
+```{r}
+rental_residuals <- resid(rental_model)
+
+plot(rental_residuals ~ rental$Bed)
+```
+```{r}
+plot(rental_residuals ~ rental$Bath)
+```
+
+```{r}
+plot(rental_residuals ~ rental$Sqft)
+```
+The residual plots confirmed it.
+
+
+Chapter 7
+
+Exercise 45
+```{r}
+purchase <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/jaggia_ba_1e_ch07_Purchase.xlsx")
+
+```
+
+A
+```{r}
+purchase_model <- glm(Purchase~Age,data=purchase)
+
+summary(purchase_model)
+```
+
+B
+```{r}
+newdata = data.frame(Age=c(20,30))
+predict(purchase_model, newdata, type='response')
+
+```
+The probability that a 20 year old purchases is .446 whereas the probability that a 30 year old purchases is .254
+
+C
+```{r}
+purchased_population <- purchase[purchase$Purchase == 1,]
+nonpurchase_population <- purchase[purchase$Purchase == 0,]
+
+x = purchased_population$Age
+y = nonpurchase_population$Age
+
+t.test(x,y,alternative="less")
+```
+The p value of .01775 is less than the significance level of .05, so I can rejected the null hypothesis that the purchase age is greater than the non purchase age in favor of the alternative hypothesis that the purchase age is less than the non purchase age.
+
+
+Exercise 50
+```{r}
+insurance <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/jaggia_ba_1e_ch07_Health_Insurance.xlsx")
+```
+
+```{r}
+insurance_model <- glm(Insurance~Premium + Income,data=insurance)
+
+summary(insurance_model)
+```
+```{r}
+newdata = data.frame(Premium=c(50,75),
+                     Income = c(60,60))
+predict(insurance_model, newdata, type='response')
+```
+If her income is 60,000 and her employer covers 50%, then there is a 70.1% chance that she has insurance coverage.
+If her income is 60,000 and her employer covers 75%, then there is a 93.1% chance that she has insurance coverage.
+

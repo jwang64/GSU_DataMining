@@ -1,0 +1,107 @@
+---
+title: "R Assignment 1"
+author: "James Wang"
+date: "10/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Before starting this assignment, make sure that you have read **Getting Started with R**. I assume that you have downloaded R and RStudio and that you know how to import an Excel file. 
+
+1. Import the USG data file into a data frame (table) and label it myData. Keep in mind that The R language is case sensitive. 
+
+```{r}
+# Type your code here. I already typed your first code here, but you need to replace the path (C:/Users/flee/Documents/USG.xlsx) in which the directory your file is saved. 
+# R will not run any code after the # sign. Text after # are meant to be comments you use to explain what the code is doing.
+
+library(readxl)
+myData <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/USG.xlsx")
+View(myData)
+
+```
+
+
+2.	Use the dim function in R to count the number of observations and variables. You can also embed plots, for example:
+
+
+```{r}
+dim(myData)
+
+```
+
+3. View the first few rows of myData with head command function. Using the View command to open up a different tab with myData
+
+```{r}
+head(myData)
+View(myData)
+```
+4. Checking to see which values are na for myData's Industry column
+```{r}
+is.na(myData$Industry)
+
+```
+5. Identifying which rows in myData's Industry column contain NA values
+```{r}
+which(is.na(myData$Industry))
+
+```
+6. Checking the number of rows that are in the automotive industry
+```{r}
+length(which(myData$Industry == 'Automotive'))
+```
+7. Checking the number of rows that have an hourly wage greater than 30
+```{r}
+length(which(myData$HourlyWage > 30))
+```
+8. Checking the number of rows that meet both conditions of being in the automotive industry and having an hourly wage greater than 30 an hour
+```{r}
+length(which(myData$Industry=='Automotive' & myData$HourlyWage > 30))
+```
+9. Sorting the data based on hourly wage and assigning it to the sortedData1 variable
+```{r}
+sortedData1 <- myData[order(myData$HourlyWage),]
+View(sortedData1)
+
+
+```
+10. Sorting myData based on hourly wage descending and assigning it to sortedData1 
+```{r}
+sortedData1 <- myData[order(myData$HourlyWage, decreasing = TRUE),]
+
+```
+11.Sorting the data on multiple columns: Inudstry, Job, and Hourly wage and then assigning it to sortedData2 and viewing the new sorted data.
+```{r}
+sortedData2 <- myData[order(myData$Industry,myData$Job,myData$HourlyWage),]
+View(sortedData2)
+```
+12.Sorting myData by Industry, Job in ascending order while sorrting Hourly Wage in descending order and assigning the sorted data to sortedData3
+```{r}
+sortedData3 <- myData[order(myData$Industry, myData$Job, -myData$HourlyWage),]
+View(sortedData3)
+```
+13. Using the xtfrm function on the Industry column in order to sort it descending and sorting the other columns like Job and Hourly wage and assigning it to sortedData4
+```{r}
+sortedData4 <- myData[order(-xtfrm(myData$Industry), myData$Job,
+myData$HourlyWage),]
+View(sortedData4)
+```
+14. Sorting myData by industry, job, and hourly wage and making them all sort descending and saving the dataset as sortedData5
+```{r}
+sortedData5 <- myData[order(myData$Industry, myData$Job, myData$HourlyWage,
+decreasing = TRUE),]
+View(sortedData5)
+
+```
+15. Saving the sortedData5 dataset as a csv file.
+```{r}
+write.csv(sortedData5,"sortedData5.csv")
+```

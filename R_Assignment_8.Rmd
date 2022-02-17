@@ -1,0 +1,66 @@
+---
+title: "R_Assignment_8"
+author: "James Wang"
+date: "10/22/2021"
+output: html_document
+---
+
+50 Internet Addiction
+```{r}
+library(readxl)
+internet_addiction <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/jaggia_ba_1e_ch08_Internet_Addiction.xlsx")
+```
+
+A
+```{r}
+internet_addiction <- internet_addiction[, !(names(internet_addiction) %in% 'Record')]
+pca <- prcomp(internet_addiction)
+
+summary(pca)
+```
+The data does not need to be standardized since all of the questions are on a scale from 1 to 5. There aren't any values that will affect PCA.
+
+B
+The first PC accounted for .3192 of the variability. There were 22 PC that were generated. In order to get a cumulative proportion of atleast .8, I would need to take all of the PCs from 1-12 to get .82659. 
+
+C
+```{r}
+pca$rotation
+```
+For the 1st component, IAT14 gives the highest weight with a value of .371. For the 2nd component, IAT10 gives the highest weight of .305.
+
+D
+```{r}
+pca$x
+```
+The score of the 1st component for the 1st record is -2.667.
+
+52 Happiness
+```{r}
+happiness <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/jaggia_ba_1e_ch08_Happiness.xlsx")
+```
+
+A
+```{r}
+happiness <- happiness[, !(names(happiness) %in% 'Country')]
+scaled_happiness <- scale(happiness)
+pca_happiness <- prcomp(scaled_happiness)
+summary(pca_happiness)
+```
+The data did need to be standardized there were many different scales within the dataset. Life expectancy was in the 10s whereas there are other columns that had numerical data in the decimal places. Without scaling, the PCA results would be affected.
+
+B
+1st PCA accounts for .5304 of the variance. In order to get to at least .8 of the variance, PC1, PC2, and PC3 are needed to get to .82647 of the variance.
+
+C
+```{r}
+pca_happiness$rotation
+```
+The Life ladder is given the most weight in the 1st PC. In the second PC, household income index is given the most weight.
+
+D
+```{r}
+pca_happiness$x
+```
+The score for the 1st record for the 1st PC is -.967.
+

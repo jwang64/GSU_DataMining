@@ -1,0 +1,70 @@
+---
+title: "R Assignment 2"
+author: "James Wang"
+date: "10/18/2021"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Chapter 3 Exercise 37
+Reading in the T-shirt data
+```{r}
+library(readxl)
+tshirt_data <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/jaggia_ba_1e_ch03_TShirts.xlsx")
+```
+
+
+```{r}
+tshirt_size_color <- table(tshirt_data$Size,tshirt_data$Color)
+tshirt_size_color
+```
+There were 43 Red M shirts sold and 33 Purple XL shirts sold
+
+```{r}
+tshirt_size_color.matrix <- as.matrix(tshirt_size_color)
+heatmap(tshirt_size_color.matrix, col = heat.colors(256), scale = "none", Rowv= NA, Colv = NA)
+```
+Medium Purple and Small green are the most popular combinations. Small Blue and Small Yellow are the least popular combination
+
+## Chapter 3 Exercise 63
+Reading in gas data
+```{r}
+gas_data <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/jaggia_ba_1e_ch03_GAS_2019.xlsx")
+```
+
+Constructing box plot for price
+```{r}
+boxplot(gas_data$Price)
+```
+Based off of the box plot, there is an outlier for gas price
+
+Calculating Z-score
+```{r}
+mean(gas_data$Price)
+sd(gas_data$Price)
+
+gas_data$price_zscore <- (gas_data$Price - mean(gas_data$Price))/ sd(gas_data$Price)
+
+which(gas_data$price_zscore > 3 | gas_data$price_zscore < -3)
+
+```
+No, my results are not consistent with part A. Based off of the Z-score values, none of the price are outliers. None of the prices' Z-score are higher than 3 or less than -3. There is a value that is at 2.7, so there is one that is close to being an outlier, but it's still within the acceptable range.
+
+Removing outliers and replacing with NA values
+```{r}
+outlier_values <- boxplot(gas_data$Price,plot=FALSE)$out
+
+outlier_values
+
+gas_data[gas_data$Price %in% outlier_values, "Price"] = NA
+
+gas_data$Price
+
+mean(gas_data$Price,na.rm=TRUE)
+```
+
+
+
+

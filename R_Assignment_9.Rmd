@@ -1,0 +1,162 @@
+---
+title: "R_Assignment_9"
+author: "James Wang"
+date: "10/23/2021"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+17
+```{r}
+library(readxl)
+machine <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/jaggia_ba_1e_ch09_Machine.xlsx")
+
+library(caret)
+library(gains)
+library(pROC)
+library(class)
+
+machine_scaled <- scale(machine[0:2])
+machine$Breakdown = factor(machine$Breakdown)
+smp_size <- floor(.6 * nrow(machine))
+
+set.seed(123)
+train_ind <- sample(seq_len(nrow(machine)), size = smp_size)
+
+trainSet <- machine_scaled[train_ind,]
+testSet <- machine_scaled[-train_ind,]
+
+trainSet_label <- machine$Breakdown[train_ind]
+testSet_label <- machine$Breakdown[-train_ind]
+
+```
+
+A
+```{r}
+#myCtrl <- trainControl(method = 'cv', number = 10)
+#myGrid <- expand.grid(.k=c(1:10))
+
+set.seed(1)
+library('Rcpp')
+
+i = 1
+k.optm=1
+for(i in 1:15){
+    knn.mod <-  knn(train=trainSet, test=testSet, cl=trainSet_label, k=i)
+    k.optm[i] <- 100 * sum(testSet_label == knn.mod)/NROW(testSet_label)
+    k=i  
+    cat(k,'=',k.optm[i],'\n')       # to print % accuracy 
+}
+```
+Based on this list of K values, the optimal value for K is 4.
+
+B. Misclassification rate.
+```{r}
+knn.4 <- knn(train=trainSet,test=testSet,cl=trainSet_label, k=4)
+
+acc.4 <- 100 * sum(testSet_label == knn.4)/NROW(testSet_label)
+acc.4
+
+100-acc.4
+```
+The misclassification rate for the optimal K is 42.19%
+
+C. Get accuracy, specificity, sensitivity, and precision
+```{r}
+confusionMatrix(knn.4 ,testSet_label)
+```
+Accuracy: .578
+Specificity: .318
+Sensitivity: .714
+Precision: .368
+
+D. What is the AUC 
+```{r}
+auc(knn.4,as.numeric(testSet_label))
+
+```
+
+E. Is KNN an effective way to classify customers?
+No, using the AUC as a classifying metric, the AUC is .518, so it's barely better than guessing the outcome.
+
+F. Change cut off to .3. Report the accuracy, specificity, sensitivity, and precision.
+```{r}
+
+```
+
+37
+```{r}
+fraud <- read_excel("C:/Users/54208/Google Drive/School/Graduate School/Masters/Fall 2021/DataMining/jaggia_ba_1e_ch09_Fraud.xlsx")
+
+fraud$Fraud <- as.factor(fraud$Fraud)
+
+set.seed(2)
+smp_size <- floor(.6 * nrow(fraud))
+train_ind <- sample(seq_len(nrow(fraud)), size = smp_size)
+
+trainSet <- fraud[train_ind,]
+testSet <- fraud[-train_ind,]
+
+myCtrl <- trainControl(method="cv", number=10)
+set.seed(1)
+install.packages('http://cran.r-project.org/src/contrib/Archive/klaR/klaR_0.6-12.tar.gz',repos=NULL,type='source')
+library('klaR')
+nb_fit <- train(Fraud ~., data = trainSet, method = "nb", trControl=myCtrl)
+nb_fit
+```
+
+A Accuracy, Sensitivity, Specificity, Precision
+```{r}
+nb_class <- predict(nb_fit, newdata = testSet)
+
+confusionMatrix(nb_class, testSet$Fraud, positive = '1')
+```
+
+B Decile-wise lift chart. leftmost lift value, what does this value imply?
+```{r}
+nb_class_prob <- predict(nb_fit, newdata=testSet, type='prob')
+
+testSet$Fraud <-as.numeric(as.character(testSet$Fraud))
+
+gains_table <- gains(testSet$Fraud, nb_class_prob[,2])
+gains_table
+
+barplot(gains_table$mean.resp/mean(testSet$Fraud), names.arg=gains_table$depth, xlab="Percentile", ylab="Lift", ylim = c(0,1.5), main = "Decile-Wise Lift Chart")
+```
+The value is .74. The top 12 percent of observations selected by the naive bayes model contains .74 times as many class 1 cases as the 10% of observations that are randomly selected.
+
+C Generate ROC Curve, what is the AUC
+```{r}
+roc_object<- roc(testSet$Fraud, nb_class_prob[,2])
+
+plot.roc(roc_object)
+```
+```{r}
+auc(roc_object)
+```
+
+D. Interpret performance measures and evaluate effectiveness of naive bayes model
+The area under the curve is .6654 which indicates that the naive bayes model predicts slightly better than a 50/50 guess on whether there is any fraud.
+
+E. Change cut off to .1. Report accuracy, sensitivity, specificity, precision rates for validation.
+```{r}
+fraud$Fraud <- as.factor(fraud$Fraud)
+
+smp_size <- floor(.6 * nrow(fraud))
+train_ind <- sample(seq_len(nrow(fraud)), size = smp_size)
+
+trainSet <- fraud[train_ind,]
+testSet <- fraud[-train_ind,]
+
+myCtrl <- trainControl(method="cv", number=10)
+set.seed(1)
+nb_fit <- train(Fraud ~., data = trainSet, method = "nb", trControl=myCtrl)
+nb_fit
+
+nb_class_prob <- predict(nb_fit, newdata=testSet, type= 'prob')
+
+confusionMatrix(as.factor(ifelse(nb_class_prob[,2]>0.75, '1', '0')), testSet$Fraud, positive = '1')
+```
+
